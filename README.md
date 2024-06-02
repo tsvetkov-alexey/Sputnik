@@ -6,6 +6,8 @@
 npm run dev
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+Примечание по статусу задачи. Вообще было два варианта реализации:
+
+1. Выбран фильтр на "выполненные" или "невыполненные" задачи и в списке при смене статуса задачи она сразу исчезала (что логично, поскольку ее статус менялся). С другой стороны пользователь мог бы подумать что что-то пошло не так и задача удалилась.
+2. Все также выбран фильтр, но теперь при смене статуса задачи она мгновенно не исчезает.
+   Кажется что первый вариант более логичный, но второй вариант более хороший с точки зрения проектирования дизайна, поэтому остановился на нем
