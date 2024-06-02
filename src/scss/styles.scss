@@ -254,6 +254,20 @@ header {
       background: #ff7079;
     }
   }
+  .loadMore {
+    width: 80%;
+    margin: 20px 10%;
+    border: 0;
+    border-radius: 20px;
+    background: #2e7564;
+    color: #fff;
+    font-size: 1rem;
+    padding: 16px;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
 }
 
 .error {

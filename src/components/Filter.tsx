@@ -1,5 +1,11 @@
 import filter from '../assets/svg/filter.svg';
-import { selectFilter, setAllTasks, setDoneTasks, setNotDoneTasks } from '../redux/filter/slice';
+import {
+  selectFilter,
+  setAllTasks,
+  setDoneTasks,
+  setFavouriteTasks,
+  setNotDoneTasks,
+} from '../redux/filter/slice';
 import { useAppDispatch } from '../redux/store';
 import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -9,11 +15,12 @@ export const Filter = () => {
   const filterRef = useRef<HTMLDivElement>(null);
   const dispatch = useAppDispatch();
 
-  const { allTasks, doneTasks, notDoneTasks } = useSelector(selectFilter);
+  const { allTasks, doneTasks, notDoneTasks, favouriteTasks } = useSelector(selectFilter);
 
   const checkedAll = allTasks ? true : false;
   const checkedDoneTasks = doneTasks ? true : false;
   const checkedNotDoneTasks = notDoneTasks ? true : false;
+  const checkedFavouriteTasks = favouriteTasks ? true : false;
 
   type PopupClick = MouseEvent & {
     composedPath(): Node[];
@@ -45,15 +52,28 @@ export const Filter = () => {
   const checkDoneTasks = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked === false) {
       dispatch(setDoneTasks(false));
-    } else dispatch(setDoneTasks(true));
+      dispatch(setAllTasks(false));
+    } else {
+      dispatch(setDoneTasks(true));
+    }
   };
 
   const checkNotDoneTasks = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked === false) {
       dispatch(setNotDoneTasks(false));
-    } else dispatch(setNotDoneTasks(true));
+      dispatch(setAllTasks(false));
+    } else {
+      dispatch(setNotDoneTasks(true));
+    }
   };
 
+  const checkFavouriteTasks = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked === false) {
+      dispatch(setFavouriteTasks(false));
+    } else {
+      dispatch(setFavouriteTasks(true));
+    }
+  };
   return (
     <div className="filter" ref={filterRef}>
       <img src={filter} alt="filter" />
@@ -89,6 +109,16 @@ export const Filter = () => {
             checked={checkedNotDoneTasks}
           />
           <label htmlFor="option3">Невыполненные</label>
+          <br />
+          <input
+            type="checkbox"
+            id="option4"
+            name="favourites"
+            value="favourites"
+            onChange={checkFavouriteTasks}
+            checked={checkedFavouriteTasks}
+          />
+          <label htmlFor="option4">Избранные</label>
         </form>
       )}
     </div>

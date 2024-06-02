@@ -41,7 +41,6 @@ export const TaskAddition = ({ refetch }: AddTask) => {
       setTitleValue('');
       refetch();
     } catch (error) {
-      console.error('Failed to add task:', error);
     } finally {
       dispatch(setTasksLoading(false));
     }

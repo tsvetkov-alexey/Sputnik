@@ -4,41 +4,92 @@ import { Task } from '../components/Task';
 import { TaskAddition } from '../components/TaskAddition';
 import { PageLoader } from '../components/UI/TaskLoader';
 import { selectFilter } from '../redux/filter/slice';
-import { useAddTaskMutation, useFetchTasksQuery } from '../services/taskService';
+import { useFetchTasksQuery } from '../services/taskService';
 import { TaskData } from '../services/types';
 import { ErrorPage } from './ErrorPage';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 export const Home = () => {
-  const { allTasks, doneTasks, notDoneTasks } = useSelector(selectFilter);
+  const { allTasks, doneTasks, notDoneTasks, favouriteTasks } = useSelector(selectFilter);
 
   const [page, setPage] = useState(1);
   const [tasks, setTasks] = useState<TaskData[]>([]);
+  const [hasMoreTasks, setHasMoreTasks] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  console.log(tasks);
   let status = '';
-  if (doneTasks && !notDoneTasks) status = 'completed';
-  if (!doneTasks && notDoneTasks) status = 'not_completed';
+  if (allTasks && doneTasks && notDoneTasks && favouriteTasks) {
+    status = '';
+  } else if (!allTasks && !doneTasks && notDoneTasks && favouriteTasks) {
+    status = 'not_completed';
+  } else if (!allTasks && !doneTasks && notDoneTasks && !favouriteTasks) {
+    status = 'not_completed';
+  } else if (!allTasks && doneTasks && !notDoneTasks && favouriteTasks) {
+    status = 'completed';
+  } else if (!allTasks && doneTasks && !notDoneTasks && !favouriteTasks) {
+    status = 'completed';
+  } else if (!allTasks && doneTasks && !notDoneTasks && favouriteTasks) {
+    status = '';
+  } else if (!allTasks && doneTasks && notDoneTasks && favouriteTasks) {
+    status = '';
+  }
 
   const { data: info, error, refetch } = useFetchTasksQuery({ page, status });
 
   useEffect(() => {
-    if (info && info.data.length > 0) {
-      setTasks(info.data);
-    }
-  }, [info]);
+    setLoading(true);
+    refetch();
+  }, [page, status, refetch]);
 
   useEffect(() => {
-    refetch();
-  }, [allTasks, doneTasks, notDoneTasks, refetch]);
+    if (!info) return;
+    const filteredTasks = favouriteTasks
+      ? info.data.filter((task) => localStorage.getItem(`task_${task.id}_liked`) === 'true')
+      : info.data;
+    if (page === 1) {
+      setTasks(filteredTasks);
+    } else {
+      setTasks((prevTasks) => {
+        const newTasks = filteredTasks.filter(
+          (task) => !prevTasks.some((prevTask) => prevTask.id === task.id),
+        );
+        return [...prevTasks, ...newTasks];
+      });
+    }
+
+    setHasMoreTasks(info.meta.pagination.page < info.meta.pagination.pageCount);
+    setLoading(false);
+  }, [info, page, favouriteTasks]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [allTasks, doneTasks, notDoneTasks]);
 
   const { tasksLoading } = useSelector(selectFilter);
 
+  const handleUpdateTask = (id: number, newStatus: string) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === id ? { ...task, attributes: { ...task.attributes, status: newStatus } } : task,
+      ),
+    );
+  };
+
+  const handleDeleteTask = (id: number) => {
+    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
+  };
+
   const taskElements =
     tasks.length > 0 ? (
-      tasks.map((obj: TaskData) => (
-        <Task {...obj.attributes} id={obj.id} key={obj.id} refetch={refetch} />
+      tasks.map((task) => (
+        <Task
+          {...task.attributes}
+          id={task.id}
+          key={task.id}
+          onUpdateTask={handleUpdateTask}
+          onDeleteTask={handleDeleteTask}
+        />
       ))
     ) : (
       <div id="loader">
@@ -48,6 +99,10 @@ export const Home = () => {
 
   if (error) return <ErrorPage />;
 
+  const handleLoadMore = () => {
+    setPage((prevPage) => prevPage + 1);
+  };
+
   return (
     <>
       <Header />
@@ -55,12 +110,16 @@ export const Home = () => {
         <h2>Список ваших задач</h2>
         <TaskAddition refetch={refetch} />
         <Filter />
-        {tasksLoading ? (
+        {(tasksLoading || loading) && (
           <div id="loader">
             <PageLoader />
           </div>
-        ) : (
-          taskElements
+        )}
+        {taskElements}
+        {tasks.length > 0 && hasMoreTasks && (
+          <button onClick={handleLoadMore} className="loadMore">
+            Загрузить еще задачи
+          </button>
         )}
       </div>
     </>

@@ -13,7 +13,7 @@ const initialState: FilterSliceState = {
   allTasks: true,
   doneTasks: true,
   notDoneTasks: true,
-  favouriteTasks: true,
+  favouriteTasks: false,
   tasksLoading: false,
 };
 
@@ -31,7 +31,7 @@ const filterSlice = createSlice({
       state.notDoneTasks = action.payload;
     },
     setFavouriteTasks(state, action: PayloadAction<boolean>) {
-      state.notDoneTasks = action.payload;
+      state.favouriteTasks = action.payload;
     },
     setTasksLoading(state, action: PayloadAction<boolean>) {
       state.tasksLoading = action.payload;
