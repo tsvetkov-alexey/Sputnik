@@ -17,11 +17,6 @@ export const Filter = () => {
 
   const { allTasks, doneTasks, notDoneTasks, favouriteTasks } = useSelector(selectFilter);
 
-  const checkedAll = allTasks ? true : false;
-  const checkedDoneTasks = doneTasks ? true : false;
-  const checkedNotDoneTasks = notDoneTasks ? true : false;
-  const checkedFavouriteTasks = favouriteTasks ? true : false;
-
   type PopupClick = MouseEvent & {
     composedPath(): Node[];
   };
@@ -86,7 +81,7 @@ export const Filter = () => {
             name="all"
             value="all"
             onChange={checkAll}
-            checked={checkedAll}
+            checked={allTasks}
           />
           <label htmlFor="option1">Все</label>
           <br />
@@ -96,7 +91,7 @@ export const Filter = () => {
             name="done"
             value="done"
             onChange={checkDoneTasks}
-            checked={checkedDoneTasks}
+            checked={doneTasks}
           />
           <label htmlFor="option2">Выполненные</label>
           <br />
@@ -106,7 +101,7 @@ export const Filter = () => {
             name="notDone"
             value="notDone"
             onChange={checkNotDoneTasks}
-            checked={checkedNotDoneTasks}
+            checked={notDoneTasks}
           />
           <label htmlFor="option3">Невыполненные</label>
           <br />
@@ -116,7 +111,7 @@ export const Filter = () => {
             name="favourites"
             value="favourites"
             onChange={checkFavouriteTasks}
-            checked={checkedFavouriteTasks}
+            checked={favouriteTasks}
           />
           <label htmlFor="option4">Избранные</label>
         </form>
